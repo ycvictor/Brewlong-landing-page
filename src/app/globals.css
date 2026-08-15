@@ -2,20 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Keep the Chinese tea names legible next to the Latin display face. */
+  .font-cjk {
+    font-family: "PingFang TC", "Hiragino Sans CJK TC", "Noto Serif TC",
+      "Songti TC", "Microsoft JhengHei", serif;
+  }
+
+  ::selection {
+    background-color: #e6b571;
+    color: #1c1917;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Two soft pools of warm light, like tea steeping through paper.
+     Painted on a fixed full-viewport layer so it never seams mid-scroll. */
+  .tea-wash {
+    background-image:
+      radial-gradient(
+        70% 45% at 50% 0%,
+        rgba(230, 181, 113, 0.26) 0%,
+        rgba(230, 181, 113, 0) 70%
+      ),
+      radial-gradient(
+        55% 45% at 90% 100%,
+        rgba(11, 44, 137, 0.08) 0%,
+        rgba(11, 44, 137, 0) 72%
+      );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
