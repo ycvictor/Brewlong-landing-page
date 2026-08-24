@@ -75,9 +75,20 @@ export function normalizeName(value: unknown): string {
 }
 
 export async function saveSignup(signup: Signup): Promise<SaveResult> {
-  // Always land the signup on disk first. Google can be misconfigured, offline
-  // or mid-redeploy, and an email typed by a real person must never be lost.
-  const duplicateLocally = await recordLocally(signup);
+  // Best-effort local copy. Hosts like Vercel give each request a read-only
+  // filesystem, so this can legitimately fail — it must never block the
+  // Google Sheets write, which is the real store once deployed.
+  let savedLocally = false;
+  let duplicateLocally = false;
+  try {
+    duplicateLocally = await recordLocally(signup);
+    savedLocally = true;
+  } catch (error) {
+    console.warn(
+      `[waitlist] could not write ${LOCAL_FILE} (expected on a read-only host): ` +
+        `${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 
   const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
   if (webhookUrl) {
@@ -85,6 +96,9 @@ export async function saveSignup(signup: Signup): Promise<SaveResult> {
       return { mode: "webhook", duplicate: await sendToWebhook(webhookUrl, signup) };
     } catch (error) {
       warnSheetsFailed(error);
+      // With no local copy either, nothing captured the email. Fail loudly so
+      // the visitor can retry rather than trusting a false confirmation.
+      if (!savedLocally) throw error;
       return { mode: "webhook", duplicate: duplicateLocally, degraded: true };
     }
   }
@@ -101,8 +115,17 @@ export async function saveSignup(signup: Signup): Promise<SaveResult> {
       };
     } catch (error) {
       warnSheetsFailed(error);
+      if (!savedLocally) throw error;
       return { mode: "sheets", duplicate: duplicateLocally, degraded: true };
     }
+  }
+
+  if (!savedLocally) {
+    throw new Error(
+      "Nowhere to store the signup: the filesystem is read-only and no Google " +
+        "Sheets credentials are set. Add GOOGLE_SHEETS_WEBHOOK_URL to your host's " +
+        "environment variables.",
+    );
   }
 
   console.info(`[waitlist] saved to ${LOCAL_FILE} (no Google Sheets configured):`, signup.email);
