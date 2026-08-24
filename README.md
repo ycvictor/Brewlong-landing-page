@@ -64,13 +64,18 @@ Colours and fonts live in `tailwind.config.ts`.
 
 ## Where the signups go
 
-Every signup is written to **`data/waitlist.csv`** on your computer. Double-click
-that file and it opens straight in Excel. It is ignored by git, so customer
-emails are never committed or shared.
+**Running on your computer:** every signup is written to **`data/waitlist.csv`**.
+Double-click that file and it opens straight in Excel. It is ignored by git, so
+customer emails are never committed or shared. Signups are also copied into a
+Google Sheet — see below. If Google is misconfigured or offline the CSV still
+captures everything, and the terminal prints a warning explaining what went wrong.
 
-Optionally, signups are also copied into a Google Sheet — see below. If Google is
-misconfigured or offline the CSV still captures everything, and the terminal
-prints a warning explaining what went wrong.
+**Once deployed** (Vercel, Netlify, and similar hosts), the CSV safety net is
+gone: those hosts give each visit a fresh, read-only filesystem, so there is no
+disk to save to. **Google Sheets becomes the only place your signups are kept.**
+Set `GOOGLE_SHEETS_WEBHOOK_URL` in your host's environment variables before
+pointing customers at the site — without it, the form will show visitors an error
+rather than pretend it saved their email.
 
 ## Connecting the waitlist to Google Sheets
 
@@ -175,11 +180,40 @@ curl -X POST http://localhost:3000/api/waitlist \
 - `"degraded":true` — saved to the CSV, but Google refused the write. The terminal
   running `npm run dev` prints the reason.
 - `"mode":"demo"` — saved to the CSV only; no Google credentials are set.
+- `{"error":"We couldn't save that just now…"}` — nothing captured the signup.
+  On a deployed site this almost always means `GOOGLE_SHEETS_WEBHOOK_URL` is
+  missing or wrong.
 
 ## Editing the shop
 
 See [Editing your story and info](#editing-your-story-and-info) — it all lives in
 `src/content/site.ts`.
+
+## Putting it online
+
+The repo is a plain Next.js app, so [Vercel](https://vercel.com) can host it for
+free. Import the GitHub repo and you'll be shown two settings:
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| **Framework Preset** | `Next.js` | Tells the host which build command and output folder to use. Detected automatically from `package.json`. |
+| **Root Directory** | `./` | Where the app lives inside the repo. Ours sits at the top level, so leave the default. |
+
+Then open **Environment Variables** and add:
+
+```bash
+GOOGLE_SHEETS_WEBHOOK_URL=<your /exec URL>   # required — see the warning below
+NEXT_PUBLIC_SITE_URL=https://<your-site>     # makes shared links preview correctly
+WAITLIST_TIMEZONE=America/Los_Angeles        # optional
+```
+
+> **Add the webhook URL before sharing the link.** A deployed site has no disk to
+> write `data/waitlist.csv` to, so the Google Sheet is the only place signups are
+> stored. Without the variable the form returns an error instead of silently
+> losing emails — but that still means no one can join.
+
+After changing an environment variable, **redeploy** — variables are baked in at
+build time, so an existing deployment won't pick them up on its own.
 
 ## Scripts
 

@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — your real keys stay private...
 .env*
+# ...but the blank template is safe to share, so others know what to fill in.
+!.env.example
 
 # waitlist signups (customer emails — never commit these)
 /data/
