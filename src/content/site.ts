@@ -49,7 +49,7 @@ export const SITE = {
   /* Each "..." below is one paragraph. Add or remove paragraphs freely —
      just keep each one wrapped in quotes and followed by a comma.          */
   about: {
-    heading: "about",
+    heading: "About",
     paragraphs: [
       "Brewlong is a pop-up tea bar serving single-origin oolong tea.",
       "We started Brewlong to bring a piece of Taiwanese culture to Seattle, and also highlight the incredible craftsmanship that goes into making oolong tea. Working directly with farmers in Taiwan, we personally select each tea to showcase the wide range of flavors that oolong tea can have.",
