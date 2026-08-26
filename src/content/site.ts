@@ -32,14 +32,14 @@ export const SITE = {
   /* ---- The email sign-up box ------------------------------------------- */
   waitlist: {
     heading: "join the waitlist",
-    intro: "Leave your email and we'll let you know where to find us next.",
+    intro: "Leave your email and we'll let you know when we launch our very first teas!",
     button: "join the waitlist",
     // Small grey print under the button.
-    disclaimer: "One note when we pop up. No spam, no daily mail — unsubscribe any time.",
+    disclaimer: "No spam, no daily mail — unsubscribe any time.",
     // Shown after someone signs up successfully.
     successHeading: "the kettle's on!",
     successBody:
-      "We'll send you a note when the next pop-up is announced. Thank you for sharing a pot with us!",
+      "We'll send you a note as soon as we have our tea ready. Thank you for sharing a cup with us!",
     // Shown when that email had already signed up before.
     duplicateHeading: "you're already with us!",
     duplicateBody: "We already had your email — we'll only write once, we promise.",
